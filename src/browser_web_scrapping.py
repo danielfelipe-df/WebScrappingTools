@@ -1,0 +1,163 @@
+"""
+@file src/browser_web_scrapping.py
+@date 2025-04-19
+@author Daniel Felipe <danielfoc@protonmail.com>
+
+@brief Useful functions to interact with the browser for Web Scrapping
+"""
+
+
+from selenium import webdriver
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.remote.webelement import WebElement
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+
+def create_browser_connection(download_folder: str) -> webdriver.Chrome:
+	"""
+	Creates a Selenium WebDriver instance for Chrome with custom download settings.
+
+	@param download_folder The path to the folder where downloads should be saved.
+	@return A Selenium WebDriver instance.
+	"""
+
+	try:
+		options = Options()
+		options.add_experimental_option(
+			"prefs",
+			{
+				"download.default_directory": download_folder,
+				"download.prompt_for_download": False,
+				"safebrowsing.enabled": True
+			}
+		)
+		options.add_argument("--start-maximized")
+
+		service = Service(ChromeDriverManager().install())
+
+		driver = webdriver.Chrome(service=service, options=options)
+
+		return driver
+	except Exception as e:
+		raise Exception(f"An error occurred creating the browser connection: {e}")
+
+
+def login_to_url(driver: webdriver.Chrome, url: str, needs_credentials: bool = False) -> webdriver.Chrome:
+	"""
+	Opens a browser window to a specified URL and waits for manual login.
+
+	@param driver A Selenium WebDriver instance.
+	@param url The URL to navigate to for login.
+	@param needs_credentials Boolean to permit input credentials if needed
+	@return The WebDriver instance after manual login.
+	"""
+
+	try:
+		driver.get(url)
+
+		if needs_credentials:
+			print("Log in manually and press Enter here...")
+			input()
+
+		return driver
+	except Exception as e:
+		driver.quit()
+		raise Exception(f"An error occurred logging in browser: {e}")
+
+
+
+def find_element_in_driver(driver: webdriver.Chrome, type_element: By, element: str, verbose: bool = False) -> WebElement:
+	"""
+	Finds an element in a Selenium WebDriver instance using the specified locator type.
+
+	@param driver A Selenium WebDriver instance.
+	@param type_element The type of locator (e.g., By.ID, By.CLASS_NAME, By.XPATH).
+	@param element The element selector string.
+	@param verbose Whether to print the outer HTML of the found element, defaults to False.
+	@return The found web element.
+	"""
+
+	try:
+		element_found = driver.find_element(type_element, element)
+
+		if verbose:
+			print(element_found.get_attribute("outerHTML"))
+
+		return element_found
+	except Exception as e:
+		raise Exception(f"An error occurred finding element: {e}")
+
+
+def click_element_in_driver(element: WebElement) -> bool:
+	"""
+	Clicks on a web element using Selenium WebDriver.
+
+	@param element The web element to be clicked.
+	@return True if the click is successful, False otherwise.
+	"""
+
+	try:
+		element.click()
+		return True
+
+	except Exception as e:
+		print(f"An error occurred clicking element: {e}")
+		return False
+
+
+def context_click_element_in_driver(driver: webdriver.Chrome, element: WebElement) -> bool:
+	"""
+	Performs a right-click (context click) on a web element using Selenium WebDriver.
+
+	@param driver The Selenium WebDriver instance.
+	@param element The web element to be right-clicked.
+	@return True if the context click is successful, False otherwise.
+	"""
+
+	try:
+		action = ActionChains(driver)
+		action.context_click(element).perform()
+		return True
+
+	except Exception as e:
+		print(f"An error occurred doing context click in element: {e}")
+		return False
+
+
+def switch_to_frame_in_browser(driver: webdriver.Chrome, frame) -> bool:
+  """
+  Switches to a specified iframe in the browser using Selenium WebDriver.
+
+  @param driver The Selenium WebDriver instance.
+  @param frame The frame element or frame name/index to switch to.
+  @return True if the switch is successful, False otherwise.
+  """
+
+  try:
+    driver.switch_to.frame(frame)
+    return True
+
+  except Exception as e:
+    print(f"An error occurred switching to frame: {e}")
+    return False
+
+
+def return_from_frame_in_browser(driver: webdriver.Chrome) -> bool:
+	"""
+	Switches back to the main content from an iframe using Selenium WebDriver.
+
+	@param driver The Selenium WebDriver instance.
+	@return True if the switch is successful, False otherwise.
+	"""
+
+	try:
+		driver.switch_to.default_content()
+		return True
+
+	except Exception as e:
+		print(f"An error occurred returning from frame: {e}")
+		return False
