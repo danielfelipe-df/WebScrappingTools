@@ -10,36 +10,63 @@
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver import chrome, firefox, Chrome, Firefox
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 
 
 
-def create_browser_connection(download_folder: str) -> webdriver.Chrome:
+def create_browser_connection(download_folder: str, browser: str = 'Firefox', pref_dict: dict = None) -> Chrome | Firefox:
 	"""
 	Creates a Selenium WebDriver instance for Chrome with custom download settings.
 
 	@param download_folder The path to the folder where downloads should be saved.
+	@param browser The name of the browser will be used.
+	@param pref_dict The dictionary of preferences needed to setup the browser.
 	@return A Selenium WebDriver instance.
 	"""
 
+	# Check the browser is one of the options supported
+	avaliable_browsers = ['Chrome', 'Firefox']
+	if browser not in avaliable_browsers:
+		raise ValueError(f"Browser '{browser}' not in available browsers {avaliable_browsers}")
+
+	# Default dictionary of preferences
+	default_pref_dict = {
+		'Chrome': {
+			'download.default_directory': download_folder,
+			'download.prompt_for_download': False,
+			'safebrowsing.enabled': True
+		},
+		'Firefox': {
+			'browser.download.folderList': 2,
+			'browser.download.manager.showWhenStarting': False,
+			'browser.download.dir': download_folder,
+			'browser.helperApps.neverAsk.saveToDisk': 'application/octet-stream'
+		}
+	}
+
+	# If the preferences dictionary from the arguments is None, use the default
+	pref_dict = default_pref_dict[browser] if pref_dict is None else pref_dict
+
 	try:
-		options = Options()
-		options.add_experimental_option(
-			"prefs",
-			{
-				"download.default_directory": download_folder,
-				"download.prompt_for_download": False,
-				"safebrowsing.enabled": True
-			}
-		)
-		options.add_argument("--start-maximized")
+		if browser == 'Chrome':
+			options = chrome.options.Options()
+			options.add_experimental_option("prefs", pref_dict)
+			options.add_argument("--start-maximized")
 
-		service = Service(ChromeDriverManager().install())
+			service = chrome.service.Service(ChromeDriverManager().install())
+			driver = Chrome(service=service, options=options)
 
-		driver = webdriver.Chrome(service=service, options=options)
+		else:
+			options = firefox.options.Options()
+			for preference, value in pref_dict.items():
+				options.set_preference(preference, value)
+			options.add_argument("--start-maximized")
+
+			service = firefox.service.Service(GeckoDriverManager().install())
+			driver = Firefox(service=service, options=options)
 
 		return driver
 	except Exception as e:
