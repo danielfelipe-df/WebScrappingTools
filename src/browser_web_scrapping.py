@@ -7,6 +7,7 @@
 """
 
 
+import time
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
@@ -119,13 +120,22 @@ def find_element_in_driver(driver: webdriver.Chrome, type_element: By, element: 
 		raise Exception(f"An error occurred finding element: {e}")
 
 
-def click_element_in_driver(element: WebElement) -> bool:
+def click_element_in_driver(element: WebElement, need_scroll: bool = False, driver = None) -> bool:
 	"""
 	Clicks on a web element using Selenium WebDriver.
 
 	@param element The web element to be clicked.
+	@param need_scroll Boolean which move (scroll) the driver to the element.
+	@param driver The driver of the current session, mandatory if scrolling need to be done.
 	@return True if the click is successful, False otherwise.
 	"""
+
+	if need_scroll:
+		if driver is None:
+			raise ValueError(f"If scroll is needed then driver is required")
+		else:
+			driver.execute_script("arguments[0].scrollIntoView(true);", element)
+			time.sleep(2)
 
 	try:
 		element.click()
