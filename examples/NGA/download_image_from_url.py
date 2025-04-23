@@ -30,6 +30,14 @@ driver = browser_ws.create_browser_connection(download_path)
 driver = browser_ws.login_to_url(driver, nga_image_url)
 time.sleep(5)
 
+# Get the collection name if found, otherwise set as empty string
+collection = ""
+try:
+	info_element = browser_ws.find_element_in_driver(driver, By.XPATH, "//div[@id='oe-strip-wrap']")
+	collection = info_element.text.replace('\n', '')
+except Exception as e:
+	print("Can't be found the element")
+
 # Set the list with all XPATH with util information
 xpath_atributes_list = [
 	"//div[@class='object-attr medium']",
@@ -40,7 +48,7 @@ xpath_atributes_list = [
 ]
 
 # Save informaion from XPATHs in Dictionary Form
-data_dict = {'Attribute': [], 'Value': []}
+data_dict = {'Attribute': ['Collection'], 'Value': [collection]}
 for xpath in xpath_atributes_list:
 	element = browser_ws.find_element_in_driver(driver, By.XPATH, xpath)
 	info_list = element.text.split('\n', maxsplit=1)
