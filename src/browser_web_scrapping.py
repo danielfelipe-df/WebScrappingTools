@@ -198,3 +198,29 @@ def return_from_frame_in_browser(driver: webdriver.Chrome) -> bool:
 	except Exception as e:
 		print(f"An error occurred returning from frame: {e}")
 		return False
+
+
+def locate_cursor_in_position(driver: webdriver.Chrome, x: str|int = 'min', y: str|int = 'min'):
+	"""
+	Move the cursor to a specific position on the page..
+
+	:param driver: Chrome WebDriver instance
+	:param x: X-coordinate or 'min'/'max' for minimum/maximum scroll width
+	:param y: Y-coordinate or 'min'/'max' for minimum/maximum scroll height
+	:return: None
+	"""
+
+	availabe_categories = ['min', 'max']
+	if not (x in availabe_categories or y in availabe_categories or isinstance(x, int) or isinstance(y, int)):
+		raise ValueError(f"{x} and {y} are not valid in the cursor location function.")
+
+	if x in availabe_categories:
+		x = 0 if x == 'min' else 'document.body.scrollWidth'
+	
+	if y in availabe_categories:
+		y = 0 if y == 'min' else 'document.body.scrollHeight'
+
+	try:
+		driver.execute_script(f"window.scrollTo({x}, {y});")
+	except Exception as e:
+		raise Exception(f"An error occurred locating the cursor in position: {e}")
