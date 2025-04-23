@@ -52,7 +52,7 @@ while True:
 				links.append(link)
 				images.append(image_id)
 				pages.append(driver.current_url)
-				position = count
+				position.append(count)
 				count += 1
 
 	# Locate the mouse at (0, 0) and locate the button to next page
