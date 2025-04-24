@@ -205,10 +205,10 @@ def locate_cursor_in_position(driver: webdriver.Chrome, x: str|int = 'min', y: s
 	"""
 	Move the cursor to a specific position on the page..
 
-	:param driver: Chrome WebDriver instance
-	:param x: X-coordinate or 'min'/'max' for minimum/maximum scroll width
-	:param y: Y-coordinate or 'min'/'max' for minimum/maximum scroll height
-	:return: None
+	@param driver Chrome WebDriver instance
+	@param x X-coordinate or 'min'/'max' for minimum/maximum scroll width
+	@param y Y-coordinate or 'min'/'max' for minimum/maximum scroll height
+	@return None
 	"""
 
 	availabe_categories = ['min', 'max']
@@ -217,7 +217,6 @@ def locate_cursor_in_position(driver: webdriver.Chrome, x: str|int = 'min', y: s
 
 	if x in availabe_categories:
 		x = 0 if x == 'min' else 'document.body.scrollWidth'
-	
 	if y in availabe_categories:
 		y = 0 if y == 'min' else 'document.body.scrollHeight'
 
