@@ -117,7 +117,8 @@ def find_element_in_driver(driver: webdriver.Chrome, type_element: By, element: 
 
 		return element_found
 	except Exception as e:
-		raise Exception(f"An error occurred finding element: {e}")
+		print(f"An error occurred finding element: {e}")
+		return None
 
 
 def click_element_in_driver(element: WebElement, need_scroll: bool = False, driver = None) -> bool:
